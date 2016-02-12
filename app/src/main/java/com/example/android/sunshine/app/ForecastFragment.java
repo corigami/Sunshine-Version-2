@@ -4,11 +4,16 @@ package com.example.android.sunshine.app;
  * Created by corey on 2/10/2016.
  */
 
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -21,6 +26,9 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.zip.Inflater;
+
+import static com.example.android.sunshine.app.R.menu.forecastfragment;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -31,10 +39,39 @@ public class ForecastFragment extends Fragment {
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        //let main activity know that this fragment has menu items
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        inflater.inflate(R.menu.forecastfragment, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_refresh) {
+            FetchWeatherTask task = new FetchWeatherTask();
+            task.execute("45430,us");
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+      @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        ArrayList<String> weekForecast = new ArrayList<>();
+          ArrayList<String> weekForecast = new ArrayList<>();
         weekForecast.add("Today - Sunny - 88/63");
         weekForecast.add("Tomorrow - Foggy - 70/46");
         weekForecast.add("Weds - Cloudy - 72/63");
@@ -54,11 +91,11 @@ public class ForecastFragment extends Fragment {
         return rootView;
     }
 
-    public class FetchWeatherTask extends AsyncTask<Void, Void, Void> {
+    public class FetchWeatherTask extends AsyncTask<String, Void, Void> {
         private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
 
         @Override
-        protected Void doInBackground(Void... params) {
+        protected Void doInBackground(String... params) {
             // These two need to be declared outside the try/catch
             // so that they can be closed in the finally block.
             HttpURLConnection urlConnection = null;
@@ -71,7 +108,26 @@ public class ForecastFragment extends Fragment {
                 // Construct the URL for the OpenWeatherMap query
                 // Possible parameters are available at OWM's forecast API page, at
                 // http://openweathermap.org/API#forecast
-                URL url = new URL("http://api.openweathermap.org/data/2.5/forecast/daily?q=94043&mode=json&units=metric&cnt=7");
+
+                final String FORECAST_BASE_URL = "http://api.openweathermap.org/data/2.5/forecast/daily?";
+                final String QUERY_PARAM = "q";
+                final String FORMAT_PARAM = "mode";
+                final String UNITS_PARAM = "units";
+                final String DAYS_PARAM = "cnt";
+                final String APIKEY_PARAM = "APPID";
+
+                Uri builtUri = Uri.parse(FORECAST_BASE_URL)
+                        .buildUpon()
+                        .appendQueryParameter(QUERY_PARAM, params[0])
+                        .appendQueryParameter(FORMAT_PARAM, "json")
+                        .appendQueryParameter(UNITS_PARAM, "metric")
+                        .appendQueryParameter(DAYS_PARAM, Integer.toString(7))
+                        .appendQueryParameter(APIKEY_PARAM, "ea06a7df9eaa81d760fff13b90b28ab1")
+                        .build();
+
+                URL url = new URL(builtUri.toString());
+                Log.v(LOG_TAG, "Forecast Query String: " + builtUri.toString());
+                //URL url = new URL("http://api.openweathermap.org/data/2.5/forecast/daily?q=" + zip + "&mode=json&units=metric&cnt=7&APPID=ea06a7df9eaa81d760fff13b90b28ab1");
 
                 // Create the request to OpenWeatherMap, and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
@@ -100,6 +156,8 @@ public class ForecastFragment extends Fragment {
                     return null;
                 }
                 forecastJsonStr = buffer.toString();
+
+                Log.v(LOG_TAG, "Forecast JSON String: " + forecastJsonStr);
             } catch (IOException e) {
                 Log.e("LOG_TAG", "Error ", e);
                 // If the code didn't successfully get the weather data, there's no point in attempting
