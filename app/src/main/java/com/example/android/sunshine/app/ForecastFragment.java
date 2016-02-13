@@ -4,6 +4,7 @@ package com.example.android.sunshine.app;
  * Created by corey on 2/10/2016.
  */
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -73,7 +75,7 @@ public class ForecastFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+        final View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         weekForecast = new ArrayList<>();
         weekForecast.add("Today - Sunny - 88/63");
         weekForecast.add("Tomorrow - Foggy - 70/46");
@@ -89,6 +91,17 @@ public class ForecastFragment extends Fragment {
                 weekForecast);
         ListView listview = (ListView) rootView.findViewById(R.id.listview_forecast);
         listview.setAdapter(forecastAdapter);
+
+        //declaring onItemClickListen in-place...
+        listview.setOnItemClickListener(new android.widget.AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+             Intent detailIntent = new Intent(getActivity(), DetailActivity.class);
+                detailIntent.putExtra(Intent.EXTRA_TEXT, forecastAdapter.getItem(position));
+                startActivity(detailIntent);
+
+               }
+        });
 
         return rootView;
     }
