@@ -26,6 +26,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 public class DetailActivity extends ActionBarActivity {
     @Override
@@ -53,10 +54,12 @@ public class DetailActivity extends ActionBarActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent settingsIntent = new Intent(this, SettingsActivity.class);
+            startActivity(settingsIntent);
             return true;
         }
+
 
         return super.onOptionsItemSelected(item);
     }
@@ -76,7 +79,9 @@ public class DetailActivity extends ActionBarActivity {
             String forecastText = intent.getStringExtra(Intent.EXTRA_TEXT);
 
             View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
-
+            TextView detailTextview = (TextView)rootView.findViewById(R.id.detailText);
+            if(detailTextview != null)
+               detailTextview.setText(forecastText);
             Log.v("Intent Test", forecastText);
             return rootView;
         }

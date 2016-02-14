@@ -1,5 +1,6 @@
 package com.example.android.sunshine.app;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -17,6 +18,12 @@ public class MainActivity extends ActionBarActivity {
                     .add(R.id.container, new ForecastFragment())
                     .commit();
         }
+
+        //this is required to show icon in action bar with android 5.0
+        //** Note: this goes against material design **
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setLogo(R.drawable.ic_launcher);
+        getSupportActionBar().setDisplayUseLogoEnabled(true);
     }
 
     @Override
@@ -35,6 +42,8 @@ public class MainActivity extends ActionBarActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+                Intent settingsIntent = new Intent(this, SettingsActivity.class);
+                startActivity(settingsIntent);
             return true;
         }
 
