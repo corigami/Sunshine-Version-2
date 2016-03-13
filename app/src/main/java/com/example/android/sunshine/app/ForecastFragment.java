@@ -51,6 +51,7 @@ import java.util.ArrayList;
  * Encapsulates fetching the forecast and displaying it as a {@link ListView} layout.
  */
 public class ForecastFragment extends Fragment {
+    final String LC_TAG = "Frag Lifecycle Change";
 
     private ArrayAdapter<String> mForecastAdapter;
 
@@ -60,6 +61,7 @@ public class ForecastFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.v(LC_TAG, "onCreate");
         // Add this line in order for this fragment to handle menu events.
         setHasOptionsMenu(true);
     }
@@ -125,6 +127,7 @@ public class ForecastFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
+        Log.v(LC_TAG, "onStart");
         updateWeather();
     }
 
